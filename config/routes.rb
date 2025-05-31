@@ -8,5 +8,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "habits#index"
-  resources :habits
+  resources :habits do
+    resources :habit_checkins, only: [:create, :destroy]
+  end  
 end

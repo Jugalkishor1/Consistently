@@ -1,17 +1,29 @@
-<h1 class="text-xl font-semibold mb-4">Your Habits</h1>
+<h1 class="text-2xl font-bold mb-6">Your Habits</h1>
 
-<%= link_to 'New Habit', new_habit_path, class: "text-blue-600 hover:underline inline-block mb-4" %>
+<%= link_to 'New Habit', new_habit_path, class: "inline-block mb-6 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" %>
 
-<ul class="space-y-2">
+<ul class="space-y-4">
   <% @habits.each do |habit| %>
-    <li class="border p-3 rounded">
-      <div class="flex justify-between items-center">
-        <%= link_to habit.name, habit_path(habit), class: "font-medium" %>
-        <div class="space-x-2">
-          <%= link_to 'Edit', edit_habit_path(habit), class: "text-blue-500 hover:underline" %>
-          <%= link_to "Delete", habit_path(habit), data: { "turbo-method": :delete }, class: "text-red-500 hover:underline" %>
+    <li class="border border-gray-200 rounded-lg p-4 shadow-sm bg-white">
+      <div class="flex justify-between items-start">
+        <%= link_to habit.name, habit_path(habit), class: "text-lg font-semibold text-gray-800 hover:underline" %>
+
+        <div class="flex flex-wrap gap-2 justify-end">
+          <%= link_to 'Edit', edit_habit_path(habit), class: "text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2" %>
+
+          <%= link_to 'Delete', habit_path(habit), data: { turbo_method: :delete, confirm: "Are you sure?" }, class: "text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-4 py-2" %>
+
+          <% if @today_checkins[habit.id] %>
+            <%= button_to "Undo Today", habit_habit_checkin_path(habit, @today_checkins[habit.id]), method: :delete, class: "text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded" %>
+          <% else %>
+            <%= form_with url: habit_habit_checkins_path(habit), method: :post, class: "inline" do %>
+              <%= hidden_field_tag :date, Date.today %>
+              <%= submit_tag "Mark as Done", class: "text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" %>
+            <% end %>
+          <% end %>
         </div>
       </div>
     </li>
   <% end %>
 </ul>
+
