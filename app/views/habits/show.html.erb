@@ -1,11 +1,66 @@
-<h1 class="text-2xl font-bold mb-4"><%= @habit.name %></h1>
+<h1 class="text-3xl font-bold mb-4"><%= @habit.name %></h1>
 
-<p class="mb-4 text-gray-700">
-  <strong>Description:</strong>
-  <%= @habit.description.presence || "No description provided." %>
+<p class="mb-6 text-gray-700">
+  <strong>Description:</strong> <%= @habit.description.presence || "No description provided." %>
 </p>
 
-<div class="space-x-4">
-  <%= link_to 'Edit', edit_habit_path(@habit), class: "text-blue-600 hover:underline" %>
-  <%= link_to 'Back', habits_path, class: "text-gray-600 hover:underline" %>
+<div class="flex gap-4 mb-6">
+  <span class="bg-green-100 text-green-800 px-3 py-1 rounded-lg">Current Streak: <%= @habit.current_streak %></span>
+  <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg">Longest Streak: <%= @habit.longest_streak %></span>
+  <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-lg">Consistency: <%= @habit.consistency_percentage %>%</span>
+</div>
+
+<h2 class="text-xl font-semibold mt-6 mb-4">Mark/Undo Daily Progress</h2>
+
+<%= link_to "Back to Home", root_path, class: "inline-block mb-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm" %>
+
+<table class="w-full table-auto border mb-8">
+  <thead>
+    <tr class="bg-gray-100 text-left text-sm">
+      <th class="p-2">Date</th>
+      <th class="p-2">Status</th>
+      <th class="p-2">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% (@start_date..@end_date).reverse_each do |date| %>
+      <% checkin = @checkins[date] %>
+      <tr class="border-b">
+        <td class="p-2"><%= date.strftime("%B %d, %Y (%A)") %></td>
+        <td class="p-2">
+          <%= checkin.present? ? "Done" : "Not Done" %>
+        </td>
+        <td class="p-2">
+          <% if checkin %>
+            <%= button_to "Undo", habit_habit_checkin_path(@habit, checkin), method: :delete, class: "bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-sm" %>
+          <% else %>
+            <%= form_with url: habit_habit_checkins_path(@habit), method: :post, class: "inline-block" do %>
+              <%= hidden_field_tag :date, date %>
+              <%= submit_tag "Mark as Done", class: "bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-sm" %>
+            <% end %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2 class="text-xl font-semibold mb-4">Last 30 Days Overview</h2>
+
+<div class="grid grid-cols-7 gap-1 mb-6" role="list" aria-label="Last 30 days habit check-in calendar">
+  <% (Date.today - 29.days..Date.today).each do |date| %>
+    <% checked = @habit.checkin_dates.include?(date) %>
+    <div class="w-10 h-10 flex items-center justify-center rounded
+                <%= checked ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600' %>"
+                data-date="<%= date %>" data-checked="<%= checked %>"
+                role="listitem"
+                aria-label="<%= date.strftime('%b %d, %Y') %>: <%= checked ? 'Done' : 'Not Done' %>">
+      <%= date.day %>
+    </div>
+  <% end %>
+</div>
+
+<div class="flex gap-3">
+  <%= link_to 'Edit', edit_habit_path(@habit), class: "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" %>
+  <%= link_to 'Back', habits_path, class: "px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400" %>
 </div>
