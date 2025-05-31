@@ -1,29 +1,67 @@
-<h1 class="text-2xl font-bold mb-6">Your Habits</h1>
 
-<%= link_to 'New Habit', new_habit_path, class: "inline-block mb-6 text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" %>
+<% if user_signed_in? %>
+  <h1>Welcome Home, <%= current_user.email %></h1>
+  <%= link_to 'Sign out', destroy_user_session_path, data: { turbo_method: :delete } %>
+<% else %>
+  <h1>Home</h1>
+  <%= link_to 'Sign in', new_user_session_path %>
+<% end %>
 
-<ul class="space-y-4">
+
+<h1 class="text-3xl font-bold mb-6 text-center">Your Habits</h1>
+
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
   <% @habits.each do |habit| %>
-    <li class="border border-gray-200 rounded-lg p-4 shadow-sm bg-white">
-      <div class="flex justify-between items-start">
-        <%= link_to habit.name, habit_path(habit), class: "text-lg font-semibold text-gray-800 hover:underline" %>
+    <div class="bg-white rounded-2xl shadow-md p-4">
+      <h2 class="text-xl font-semibold text-indigo-600"><%= habit.name %></h2>
+      <p class="text-gray-600 mb-2"><%= habit.description %></p>
 
-        <div class="flex flex-wrap gap-2 justify-end">
-          <%= link_to 'Edit', edit_habit_path(habit), class: "text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2" %>
-
-          <%= link_to 'Delete', habit_path(habit), data: { turbo_method: :delete, confirm: "Are you sure?" }, class: "text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-4 py-2" %>
-
-          <% if @today_checkins[habit.id] %>
-            <%= button_to "Undo Today", habit_habit_checkin_path(habit, @today_checkins[habit.id]), method: :delete, class: "text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded" %>
-          <% else %>
-            <%= form_with url: habit_habit_checkins_path(habit), method: :post, class: "inline" do %>
-              <%= hidden_field_tag :date, Date.today %>
-              <%= submit_tag "Mark as Done", class: "text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" %>
-            <% end %>
-          <% end %>
-        </div>
+      <!-- Stats -->
+      <div class="flex flex-wrap gap-2 mb-2 text-sm">
+        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-xl">
+          Current Streak: <%= habit.current_streak %>
+        </span>
+        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-xl">
+          Longest Streak: <%= habit.longest_streak %>
+        </span>
+        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-xl">
+          Consistency: <%= habit.consistency_percentage %>%
+        </span>
       </div>
-    </li>
-  <% end %>
-</ul>
 
+      <!-- Calendar -->
+      <div class="grid grid-cols-7 gap-1 mt-4 mb-4">
+        <% (Date.today - 29.days..Date.today).each do |date| %>
+          <% checked = habit.checkin_dates.include?(date) %>
+          <div class="w-8 h-8 text-xs flex items-center justify-center rounded
+                      <%= checked ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600' %>">
+            <%= date.day %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-between mt-2">
+        <% if @today_checkins[habit.id] %>
+          <%= button_to "Undo Today", habit_habit_checkin_path(habit, @today_checkins[habit.id]), method: :delete, class: "text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded" %>
+        <% else %>
+          <%= form_with url: habit_habit_checkins_path(habit), method: :post, class: "inline" do %>
+            <%= hidden_field_tag :date, Date.today %>
+            <%= submit_tag "Mark as Done", class: "text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded" %>
+          <% end %>
+        <% end %>
+
+        <%= link_to "Edit", edit_habit_path(habit),
+            class: "text-indigo-600 text-sm hover:underline" %>
+        <%= link_to "Delete", habit, method: :delete, data: { confirm: "Are you sure?" },
+            class: "text-red-600 text-sm hover:underline" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Create New Habit -->
+<div class="text-center mt-8">
+  <%= link_to "Add New Habit", new_habit_path,
+      class: "inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700" %>
+</div>
