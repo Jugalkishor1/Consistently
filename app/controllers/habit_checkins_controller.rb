@@ -4,13 +4,13 @@ class HabitCheckinsController < ApplicationController
   
     def create
       @habit.habit_checkins.create(date: params[:date])
-      redirect_to habits_path, notice: "Habit marked as done for #{params[:date]}"
+      redirect_to request.referer, notice: "Habit marked as done for #{params[:date]}"
     end
   
     def destroy
       checkin = @habit.habit_checkins.find(params[:id])
       checkin.destroy
-      redirect_to habits_path, notice: "Check-in removed"
+      redirect_to request.referer, notice: "Check-in removed"
     end
   
     private
@@ -18,5 +18,5 @@ class HabitCheckinsController < ApplicationController
     def get_habit
       @habit = current_user.habits.find(params[:habit_id])
     end
-  end
+end
   
