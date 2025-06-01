@@ -82,6 +82,4 @@ test:
 #
 production:
   <<: *default
-  database: consistently_production
-  username: consistently
-  password: <%= ENV["CONSISTENTLY_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
