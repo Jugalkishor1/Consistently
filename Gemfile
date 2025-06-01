@@ -70,3 +70,6 @@ group :test do
 end
 
 gem 'devise'
+gem 'sidekiq'
+gem 'sidekiq-cron'
+gem 'dotenv-rails'
