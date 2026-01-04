@@ -14,14 +14,38 @@
   <body>
     <%= render partial: 'base/header' %>
     <main class="container mx-auto mt-28 px-5">
-      <% if notice %>
-        <p class="notice"><%= notice %></p>
-      <% end %>
-    
-      <% if alert %>
-        <p class="alert"><%= alert %></p>
-      <% end %>
-    
+        <div id="flash">
+          <% flash.each do |type, message| %>
+            <div class="fixed top-16 right-4 z-50 w-full max-w-lg bg-gradient-to-r p-4 rounded-lg shadow-lg flex items-center justify-between space-x-4
+              <%= type == 'notice' ? 'from-green-400 to-green-600 text-white' : 'from-yellow-400 to-yellow-600 text-white' %>"
+              role="alert"
+              data-controller="flash"
+              data-action="animationend->flash#remove"
+              data-flash-message="<%= message %>">
+              
+              <div class="flex items-center space-x-3">
+                <% if type == 'notice' %>
+                  <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                <% else %>
+                  <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                <% end %>
+                
+                <p class="text-sm font-medium text-white">
+                  <%= message %>
+                </p>
+              </div>
+              
+              <button data-action="flash#remove" class="text-white hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-white rounded-full p-1 transition duration-200">
+                <span class="text-2xl">&times;</span>
+              </button>
+            </div>
+          <% end %>
+        </div>
+
       <%= yield %>
     </main>
   </body>
